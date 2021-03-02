@@ -1,0 +1,24 @@
+svg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#animatedObject {
+    width: 50px;
+    height: 50px;
+    background-color: #943;
+    border-radius: 50%;
+    offset-path: path("M120,180C200,180 200,20 280,20C317.712,20 360,29.333 360,100C360,158.667 317.712,180 280,180C200,180 200,20 120,20C82.288,20 40,29.333 40,100C40,170.667 82.288,180 120,180Z");
+    animation: move 3000ms infinite linear;
+}
+
+@keyframes move {
+    0% {
+        offset-distance: 0%;
+    }
+    100% {
+        offset-distance: 100%;
+    }
+}
