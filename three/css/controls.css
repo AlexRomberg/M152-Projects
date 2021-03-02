@@ -1,0 +1,141 @@
+/*
+    Copyright (c) 2021 Alexander Romberg
+*/
+
+#chartsBox {
+    flex: 1;
+    scrollbar-width: thin;
+    overflow-y: auto;
+}
+
+#controlsBox {
+    max-height: 60%;
+    scrollbar-width: thin;
+    overflow-y: auto;
+}
+
+.control,
+.chart {
+    min-height: 50px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    width: 100%;
+    min-width: 200px;
+    background-color: var(--contentBackgroundColorDark);
+    padding: 5px;
+    flex-flow: column;
+}
+
+.control h4,
+.chart h4 {
+    text-align: left;
+    margin-left: 5px;
+}
+
+.row {
+    display: flex;
+    flex-flow: row nowrap;
+    padding: 5px;
+    margin-bottom: 5px;
+    background-color: var(--contentBackgroundColorDarker);
+    border-radius: 50px;
+}
+
+.space-even {
+    justify-content: space-between;
+    width: 200px;
+    align-self: center;
+    text-align: center;
+    justify-self: center;
+}
+
+/*--- slider ---*/
+.slider {
+    width: calc(100% - 10px);
+    height: 10px;
+    background: linear-gradient(to right, blue, red);
+    border-radius: 10px;
+    outline: none;
+    -webkit-appearance: none;
+    margin: 15px 5px 10px 5px;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 20px;
+    background: grey;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 10px;
+    height: 20px;
+    border-radius: 10px;
+    background: gray;
+    cursor: pointer;
+}
+
+/*--- button ---*/
+.btnRound {
+    display: block;
+    border-radius: 30px;
+    background-color: var(--buttonBackground);
+    width: 60px;
+    height: 60px;
+    padding: 10px;
+    line-height: 40px;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--button);
+    user-select: none;
+}
+
+.btnSmall {
+    margin: 5px;
+    width: 50px;
+    height: 50px;
+    padding: 5px;
+}
+
+.btnRound:hover {
+    background-color: #0004;
+}
+
+.btnRound img{
+    width: 40px;
+    height: 40px;
+}
+
+/* --- images --- */
+#btnReset img {
+    content: var(--btnReload);
+}
+
+#btnStart img {
+    content: var(--btnPlay);
+}
+
+#btnStart .btnPause {
+    content: var(--btnPause);
+}
+
+@media only screen and (max-width: 890px) {    
+    .charts,
+    .controls {
+        display: flex;
+        flex-flow: row nowrap;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+    .chart,
+    .control {
+        margin-right: 10px;
+    }
+    .chart:last-of-type,
+    .control:last-of-type {
+        margin-right: 0px;
+    }
+}

@@ -1,0 +1,142 @@
+/*
+    Copyright (c) 2021 Alexander Romberg
+*/
+
+header #logo {
+    user-select: none;
+    opacity: 0;
+}
+
+#AtomAni {
+    content: var(--logoSource);
+}
+
+/* --- container --- */
+
+.help-container {
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+    height: calc(100vh - 7em);
+    height: calc(-webkit-fill-available - 7em);
+}
+
+
+/* --- sidebarNav ---*/
+
+nav {
+    height: 100%;
+    width: 200px;
+    background-color: var(--contentBackgroundColor);
+}
+
+nav a {
+    padding: 10px;
+    width: 100%;
+    text-decoration: none;
+    display: block;
+}
+
+nav a:hover {
+    background-color: #0002;
+}
+
+nav h2 {
+    padding: 10px;
+    padding-bottom: 0px;
+    font-size: 2.25em;
+}
+
+
+/*--- main ---*/
+
+main {
+    width: 100%;
+    text-align: left;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    font-size: 1.1252rem
+}
+
+.center {
+    width: 400px;
+    margin: 40px auto;
+    display: block;
+}
+
+main h1 {
+    margin-top: 30px;
+    text-decoration: underline;
+}
+
+main h2 {
+    margin-top: 10px;
+}
+
+main h3 {
+    margin-top: 5px;
+}
+
+main code {
+    margin: 15px 0px;
+    display: block;
+    font-family: FiraCode;
+    white-space: pre-wrap;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: var(--contentBackgroundColor);
+    border: solid #7D7D7D 2px;
+    font-size: 12pt;
+    margin-top: 5px;
+}
+
+main ul {
+    padding-left: 30px;
+}
+
+main table {
+    width: 100%;
+    margin: 15px 0px;
+    border-collapse: collapse;
+    border-radius: 5px;
+    overflow: hidden;
+}
+main table th,
+main table td {
+    padding: 5px 7px;
+    vertical-align: top;
+    border-right: solid 2px var(--fontColor);
+}
+
+main table th:last-of-type,
+main table td:last-of-type {
+    border-right: none;
+}
+
+main tr *:nth-of-type(1) {
+    width: 180px;
+}
+
+main tr td:nth-of-type(1) {
+    font-style: italic;
+}
+
+main tr *:nth-of-type(3) {
+    width: 200px;
+}
+
+main table th {
+    background-color: var(--contentBackgroundColor);    
+}
+
+main table tr:nth-child(even) {
+    background-color: var(--contentBackgroundColor);
+}
+
+main table tr:nth-child(odd) {
+    background-color: var(--contentBackgroundColorDark);
+}
+
+main th {
+    border-bottom: 1px solid;
+}
