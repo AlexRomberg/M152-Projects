@@ -1,4 +1,4 @@
-import * as THREE from '../res/lib/three.module.js';
+import * as THREE from './lib/three.module.js';
 
 const MaxDistance = 160000;
 const CONST_k = 1.380658e-23;
