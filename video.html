@@ -14,7 +14,61 @@
     <h2>history of the entire world, i guess</h2>
     <h3>bill wurtz</h3>
     <hr>
+    <video poster="img.png" controls style="width: 500px;">
+        <source src="./waa.mp4" type="video/mp4">
+        Ihr Browser kann dieses Video nicht wiedergeben.<br />
+        Dieser Film zeigt einen Finger, der auf die Tastatur drückt.
+    </video>
+    <video id="vid" src="./waa.mp4" style="width: 500px;">
+        Ihr Browser kann dieses Video nicht wiedergeben.<br />
+        Dieser Film zeigt einen Finger, der auf die Tastatur drückt.
+    </video>
+    <button class="video-control">
+        <span class="video-control-play">
+            <span class="video-control-symbol" aria-hidden="true">▶️</span>
+            <span class="video-control-label">Play</span>
+        </span>
+        <span class="video-control-pause">
+            <span class="video-control-symbol" aria-hidden="true">⏸</span>
+            <span class="video-control-label">Pause</span>
+        </span>
+    </button>
+    <style>
+        .video-control {
+            min-width: 7.5em;
+            padding: 0.5em 1em;
+            text-align: left;
+            border-radius: 9in;
+            background: #FFFB;
+        }
+        
+        .video-control:not(.playing) .video-control-pause,
+        .video-control.playing .video-control-play {
+            display: none;
+        }
+        
+        .video-control-symbol {
+            font: 1.75em/0 Apple Color Emoji;
+            vertical-align: -0.15em;
+        }
+    </style>
+    <script>
+        const videoElement = document.querySelector('#vid');
+        const playPauseButton = document.querySelector('button');
 
+        playPauseButton.addEventListener('click', () => {
+            playPauseButton.classList.toggle('playing');
+            if (playPauseButton.classList.contains('playing')) {
+                videoElement.play();
+            } else {
+                videoElement.pause();
+            }
+        });
+
+        videoElement.addEventListener('ended', () => {
+            playPauseButton.classList.remove('playing');
+        });
+    </script>
 </body>
 
 </html>
