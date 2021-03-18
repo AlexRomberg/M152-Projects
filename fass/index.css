@@ -1,0 +1,25 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+img {
+    position: fixed;
+}
+
+.balken {
+    top: 246px;
+}
+
+#balken1 {
+    left: 20px;
+}
+
+#balken2 {
+    left: 1100px;
+}
+
+#fass {
+    width: 150px;
+    height: 150px;
+}
