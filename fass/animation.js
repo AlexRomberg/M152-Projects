@@ -1,17 +1,18 @@
-var Fass = document.getElementById('fass');
-var Balken1 = document.getElementById('balken1');
-var Balken2 = document.getElementById('balken2');
-var Background = document.getElementById('bg');
-var Left = 70;
-var Width = 1000;
-var MoveDist = 5;
-var Moving = "left", PosX = 0, RotDeg = 0;
-setTimeout(function () {
-    var FassTop = Background.offsetHeight - Fass.offsetHeight;
-    var FassWidth = Fass.offsetHeight;
-    var FassDegConversion = 360 / (FassWidth * 3.141592653589793238462643383);
+"use strict";
+const Fass = document.getElementById('fass');
+const Balken1 = document.getElementById('balken1');
+const Balken2 = document.getElementById('balken2');
+const Background = document.getElementById('bg');
+const Left = 70;
+const Width = 1000;
+const MoveDist = 5;
+let Moving = "left", PosX = 0, RotDeg = 0;
+setTimeout(() => {
+    const FassTop = Background.offsetHeight - Fass.offsetHeight;
+    const FassWidth = Fass.offsetHeight;
+    const FassDegConversion = 360 / (FassWidth * 3.141592653589793238462643383);
     init();
-    setInterval(function () {
+    setInterval(() => {
         if (Moving == "left") {
             if (PosX > 0) {
                 moveLeft(MoveDist);
@@ -41,7 +42,7 @@ setTimeout(function () {
         RotDeg += length * FassDegConversion;
     }
     function update() {
-        Fass.style.transform = "translateX(" + PosX + "px) rotate(" + RotDeg + "deg)";
+        Fass.style.transform = `translateX(${PosX}px) rotate(${RotDeg}deg)`;
     }
     function init() {
         Balken1.style.left = (Left - Balken1.offsetWidth) + "px";
