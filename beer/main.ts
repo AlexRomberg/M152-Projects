@@ -15,7 +15,7 @@ class CMain {
     public FPS: number;
     static BUBBLE_STROKE = '#fff';
 
-    constructor(imageScale: number, fps :number) {
+    constructor(imageScale: number, fps: number) {
         this.Canvas = document.getElementById('canv') as HTMLCanvasElement;
         this.CTX = this.Canvas.getContext('2d');
 
@@ -52,7 +52,7 @@ class CMain {
 
     private cleanDoneBubble() {
         for (let bubbleId = this.BubbleList.length - 1; bubbleId >= 0; bubbleId--) {
-            if(this.BubbleList[bubbleId].done) {
+            if (this.BubbleList[bubbleId].done) {
                 this.BubbleList.splice(bubbleId, 1);
             }
         }
@@ -89,7 +89,7 @@ class CBubble {
         this.MainClass = mainClass;
         this.PosX = (Math.random() * (mainClass.XRight - mainClass.XLeft)) + mainClass.XLeft;
         this.PosY = mainClass.YBottom;
-        this.Size = (Math.random() * 5 + 1) * mainClass.ImageScale;
+        this.Size = (Math.random() + 0.5) * mainClass.ImageScale;
         this.RenderingContext = renderingContext;
     }
 
@@ -100,10 +100,19 @@ class CBubble {
         this.RenderingContext.stroke();
 
         this.calculateMovement();
+        this.checkAnimationEnding();
     }
 
     private calculateMovement() {
-        this.PosY -= this.Size;
+        const radius = (this.Size / 1000) / 2;
+        const deltaTime = 1000 / mainClass.FPS;
+        const buoyancyForce = (4 / 3) * Math.PI * radius * radius * radius * 9.81 * 4;
+
+        this.PosY -= buoyancyForce * deltaTime * deltaTime * 100000;
+        this.PosX += (Math.random() - 0.5) * buoyancyForce * deltaTime * deltaTime * 20000; // random left/right movement
+    }
+
+    private checkAnimationEnding() {
         if (this.PosY < this.MainClass.YTop) {
             this.done = true;
         }
@@ -113,18 +122,30 @@ class CBubble {
 
 
 // fix params
-const ImageScale = 1.25, FPS = 50, BubbleIntesity = 2; /* BubbleIntesity ist ein Wert [0-99] für die Anzahl Frames pro Blase. */
+const ImageScale = 1, FPS = 50, BubbleIntesity = 2;
 const mainClass = new CMain(ImageScale, FPS);
-let FrameCount = 0;
+const BtnPlayPause = document.getElementById('BtnPlayPause');
+let FrameCount = 0, AnimationRunning = true; /* BubbleIntesity ist ein Wert [0-99] für die Anzahl Frames pro Blase. */
 
 // start Animation
 setTimeout(() => {
     mainClass.calculateParams();
     setInterval(() => {
-        FrameCount++;
-        mainClass.renderFrame();
-        if (FrameCount % BubbleIntesity == 0) {
-            mainClass.addBubble();
+        if (AnimationRunning) {
+            FrameCount++;
+            mainClass.renderFrame();
+            if (FrameCount % BubbleIntesity == 0) {
+                mainClass.addBubble();
+            }
         }
     }, 1000 / FPS);
 }, 100);
+
+BtnPlayPause.addEventListener('click', ()=>{
+    if (AnimationRunning) {
+        BtnPlayPause.innerText = 'Start';
+    } else {
+        BtnPlayPause.innerText = 'Pause';
+    }
+    AnimationRunning = !AnimationRunning;
+});

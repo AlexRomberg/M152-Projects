@@ -58,7 +58,7 @@ var CBubble = /** @class */ (function () {
         this.MainClass = mainClass;
         this.PosX = (Math.random() * (mainClass.XRight - mainClass.XLeft)) + mainClass.XLeft;
         this.PosY = mainClass.YBottom;
-        this.Size = (Math.random() * 5 + 1) * mainClass.ImageScale;
+        this.Size = (Math.random() + 0.5) * mainClass.ImageScale;
         this.RenderingContext = renderingContext;
     }
     CBubble.prototype.renderBubble = function () {
@@ -67,9 +67,16 @@ var CBubble = /** @class */ (function () {
         this.RenderingContext.ellipse(this.PosX, this.PosY, this.Size, this.Size, 0, 0, Math.PI * 2);
         this.RenderingContext.stroke();
         this.calculateMovement();
+        this.checkAnimationEnding();
     };
     CBubble.prototype.calculateMovement = function () {
-        this.PosY -= this.Size;
+        var radius = (this.Size / 1000) / 2;
+        var deltaTime = 1000 / mainClass.FPS;
+        var buoyancyForce = (4 / 3) * Math.PI * radius * radius * radius * 9.81 * 4;
+        this.PosY -= buoyancyForce * deltaTime * deltaTime * 100000;
+        this.PosX += (Math.random() - 0.5) * buoyancyForce * deltaTime * deltaTime * 20000; // random left/right movement
+    };
+    CBubble.prototype.checkAnimationEnding = function () {
         if (this.PosY < this.MainClass.YTop) {
             this.done = true;
         }
@@ -77,17 +84,29 @@ var CBubble = /** @class */ (function () {
     return CBubble;
 }());
 // fix params
-var ImageScale = 1.25, FPS = 50, BubbleIntesity = 2; /* BubbleIntesity ist ein Wert [0-99] für die Anzahl Frames pro Blase. */
+var ImageScale = 1, FPS = 50, BubbleIntesity = 2;
 var mainClass = new CMain(ImageScale, FPS);
-var FrameCount = 0;
+var BtnPlayPause = document.getElementById('BtnPlayPause');
+var FrameCount = 0, AnimationRunning = true; /* BubbleIntesity ist ein Wert [0-99] für die Anzahl Frames pro Blase. */
 // start Animation
 setTimeout(function () {
     mainClass.calculateParams();
     setInterval(function () {
-        FrameCount++;
-        mainClass.renderFrame();
-        if (FrameCount % BubbleIntesity == 0) {
-            mainClass.addBubble();
+        if (AnimationRunning) {
+            FrameCount++;
+            mainClass.renderFrame();
+            if (FrameCount % BubbleIntesity == 0) {
+                mainClass.addBubble();
+            }
         }
     }, 1000 / FPS);
 }, 100);
+BtnPlayPause.addEventListener('click', function () {
+    if (AnimationRunning) {
+        BtnPlayPause.innerText = 'Start';
+    }
+    else {
+        BtnPlayPause.innerText = 'Pause';
+    }
+    AnimationRunning = !AnimationRunning;
+});
