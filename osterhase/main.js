@@ -15,6 +15,7 @@ var CGameboard = /** @class */ (function () {
         this.Floor.src = 'img/floor.png';
         this.Rabbit = new CRabbit(canvasContext, imageScale);
         this.Hole = new CHole(canvasContext, imageScale);
+        this.Egg = new CEgg(canvasContext);
     }
     CGameboard.prototype.updateCanvasParams = function (body) {
         this.CTX.canvas.width = body.clientWidth;
@@ -30,6 +31,20 @@ var CGameboard = /** @class */ (function () {
         this.Hole.renderBack();
         var rabbitEvent = this.Rabbit.render(!this.WinAnimationPlaying);
         this.Hole.renderFront();
+        this.Egg.render();
+        this.evaluateEvents(rabbitEvent);
+        this.stopWinAnimation();
+    };
+    CGameboard.prototype.stopWinAnimation = function () {
+        if (this.WinAnimationPlaying && !this.Egg.IsAnimationRunning) {
+            this.Rabbit.attach();
+            EggCounter++;
+            document.getElementById('eggCounter').innerText = EggCounter.toString();
+            this.WinAnimationPlaying = false;
+            this.placeHole();
+        }
+    };
+    CGameboard.prototype.evaluateEvents = function (rabbitEvent) {
         if (rabbitEvent !== null) {
             if (rabbitEvent.event == "stoped") {
                 this.handleLoss();
@@ -45,13 +60,13 @@ var CGameboard = /** @class */ (function () {
         this.Rabbit.attach();
         if (this.Tries >= 3) {
             this.placeHole();
+            this.Tries = 0;
         }
     };
     CGameboard.prototype.handleWin = function () {
-        EggCounter++;
-        document.getElementById('eggCounter').innerText = EggCounter.toString();
-        this.WinAnimationPlaying = true;
         this.Tries = 0;
+        this.WinAnimationPlaying = true;
+        this.Egg.startAnimation();
     };
     CGameboard.prototype.renderFloor = function () {
         for (var imgIndex = 0; imgIndex < Math.ceil(this.CanvasWidth / (this.Floor.width * this.ImageScale - 2)); imgIndex++) {
@@ -99,11 +114,12 @@ var CRabbit = /** @class */ (function () {
         this.FloorY = this.CTX.canvas.clientHeight - 125 * imageScale;
     }
     CRabbit.prototype.render = function (calculateMovement) {
-        this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
+        var event = null;
         if (!this.IsAttachedToMouse && calculateMovement) {
-            return this.runCalculation(FramesPerSecond);
+            event = this.runCalculation(FramesPerSecond);
         }
-        return null;
+        this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
+        return event;
     };
     CRabbit.prototype.runCalculation = function (fps) {
         var deltaTime = 1 / fps;
@@ -118,6 +134,7 @@ var CRabbit = /** @class */ (function () {
             this.VelocityY *= 0.9;
             this.VelocityX *= 0.9;
             if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X < this.CTX.canvas.width) {
+                this.Y = this.FloorY - this.RabbitHeight + 15; // prevent rabbit being drawn in de ground
                 return { event: "hitGround", position: this.X + this.RabbitWeight / 2 };
             }
             else {
@@ -172,7 +189,7 @@ var CHole = /** @class */ (function () {
         this.CTX.drawImage(this.holeFront, this.X, this.CTX.canvas.height - this.holeFront.height * this.ImageScale, this.holeFront.width * this.ImageScale, this.holeFront.height * this.ImageScale);
     };
     CHole.prototype.validateHit = function (position) {
-        var tolerance = this.holeBack.width * this.ImageScale / 2;
+        var tolerance = this.holeBack.width * this.ImageScale / 4;
         var isHit = (position > this.X - tolerance && position < this.X + this.holeBack.width * this.ImageScale + tolerance);
         return isHit;
     };
@@ -182,11 +199,27 @@ var CEgg = /** @class */ (function () {
     function CEgg(ctx) {
         this.Egg = new Image();
         this.IsAnimationRunning = false;
-        this.Egg.src = 'img/Ei.svg';
+        this.CTX = ctx;
+        this.Egg.src = 'img/egg.png';
     }
     CEgg.prototype.startAnimation = function () {
+        this.IsAnimationRunning = true;
+        this.X = this.CTX.canvas.width / 2 - 150;
+        this.Y = this.CTX.canvas.height;
+        this.End = this.CTX.canvas.height / 2 - 150;
+        this.Step = (this.Y - this.End) / 50;
     };
     CEgg.prototype.render = function () {
+        if (this.IsAnimationRunning) {
+            if (this.Y < this.End) {
+                this.IsAnimationRunning = false;
+                this.CTX.drawImage(this.Egg, this.X, this.Y, 300, 300);
+            }
+            else {
+                this.Y -= this.Step;
+                this.CTX.drawImage(this.Egg, this.X, this.Y, 300, 300);
+            }
+        }
     };
     return CEgg;
 }());

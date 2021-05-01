@@ -15,6 +15,7 @@ class CGameboard {
     public CanvasHeight: number;
     public Rabbit: CRabbit;
     public Hole: CHole;
+    public Egg: CEgg;
 
     constructor(canvasContext: CanvasRenderingContext2D, imageScale: number = 1) {
         this.CTX = canvasContext;
@@ -22,6 +23,7 @@ class CGameboard {
         this.Floor.src = 'img/floor.png';
         this.Rabbit = new CRabbit(canvasContext, imageScale);
         this.Hole = new CHole(canvasContext, imageScale);
+        this.Egg = new CEgg(canvasContext);
     }
 
     public updateCanvasParams(body: HTMLElement) {
@@ -40,6 +42,24 @@ class CGameboard {
         this.Hole.renderBack();
         let rabbitEvent = this.Rabbit.render(!this.WinAnimationPlaying);
         this.Hole.renderFront();
+        this.Egg.render();
+
+        this.evaluateEvents(rabbitEvent);
+
+        this.stopWinAnimation();
+    }
+
+    private stopWinAnimation() {
+        if (this.WinAnimationPlaying && !this.Egg.IsAnimationRunning) {
+            this.Rabbit.attach();
+            EggCounter++;
+            document.getElementById('eggCounter').innerText = EggCounter.toString();
+            this.WinAnimationPlaying = false;
+            this.placeHole();
+        }
+    }
+
+    private evaluateEvents(rabbitEvent: { event: "stoped" | "hitGround"; position?: number; }) {
         if (rabbitEvent !== null) {
             if (rabbitEvent.event == "stoped") {
                 this.handleLoss();
@@ -56,15 +76,14 @@ class CGameboard {
 
         if (this.Tries >= 3) {
             this.placeHole();
+            this.Tries = 0;
         }
     }
 
     private handleWin() {
-        EggCounter++;
-        document.getElementById('eggCounter').innerText = EggCounter.toString();
-        this.WinAnimationPlaying = true;
         this.Tries = 0;
-
+        this.WinAnimationPlaying = true;
+        this.Egg.startAnimation();
     }
 
     private renderFloor() {
@@ -128,12 +147,14 @@ class CRabbit {
     }
 
     public render(calculateMovement: boolean): null | { event: "stoped" | "hitGround"; position?: number } {
+        let event = null;
+        if (!this.IsAttachedToMouse && calculateMovement) {
+            event = this.runCalculation(FramesPerSecond);
+        }
+
         this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
 
-        if (!this.IsAttachedToMouse && calculateMovement) {
-            return this.runCalculation(FramesPerSecond);
-        }
-        return null;
+        return event;
     }
 
     private runCalculation(fps: number): null | { event: "stoped" | "hitGround"; position?: number } {
@@ -150,6 +171,7 @@ class CRabbit {
             this.VelocityY *= 0.9;
             this.VelocityX *= 0.9;
             if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X < this.CTX.canvas.width) {
+                this.Y = this.FloorY - this.RabbitHeight + 15; // prevent rabbit being drawn in de ground
                 return { event: "hitGround", position: this.X + this.RabbitWeight / 2 };
             } else {
                 return { event: "stoped" };
@@ -214,9 +236,45 @@ class CHole {
     }
 
     public validateHit(position): boolean {
-        const tolerance = this.holeBack.width * this.ImageScale / 2;
+        const tolerance = this.holeBack.width * this.ImageScale / 4;
         const isHit = (position > this.X - tolerance && position < this.X + this.holeBack.width * this.ImageScale + tolerance);
         return isHit;
+    }
+}
+
+class CEgg {
+    private CTX: CanvasRenderingContext2D;
+    private Egg: HTMLImageElement = new Image();
+    private X: number;
+    private Y: number;
+    private End: number;
+    private Step: number;
+    public IsAnimationRunning = false;
+
+    constructor(ctx: CanvasRenderingContext2D) {
+        this.CTX = ctx;
+        this.Egg.src = 'img/egg.png';
+    }
+
+    public startAnimation() {
+        this.IsAnimationRunning = true;
+        this.X = this.CTX.canvas.width / 2 - 150;
+        this.Y = this.CTX.canvas.height;
+        this.End = this.CTX.canvas.height / 2 - 150;
+        this.Step = (this.Y - this.End) / 50
+
+    }
+
+    public render() {
+        if (this.IsAnimationRunning) {
+            if (this.Y < this.End) {
+                this.IsAnimationRunning = false;
+                this.CTX.drawImage(this.Egg, this.X, this.Y, 300, 300);
+            } else {
+                this.Y -= this.Step;
+                this.CTX.drawImage(this.Egg, this.X, this.Y, 300, 300);
+            }
+        }
     }
 }
 
