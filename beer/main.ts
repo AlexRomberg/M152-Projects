@@ -125,23 +125,21 @@ class CBubble {
 
 
 // fix params
-const ImageScale = 1, FPS = 50, BubbleIntesity = 2;
+const ImageScale = 1, FPS = 50, BubbleIntesity = 2; /* BubbleIntesity ist ein Wert [0-99] für die Anzahl Frames pro Blase. */
 const mainClass = new CMain(ImageScale, FPS);
 const BtnPlayPause = document.getElementById('BtnPlayPause');
-let FrameCount = 0, AnimationRunning = true; /* BubbleIntesity ist ein Wert [0-99] für die Anzahl Frames pro Blase. */
+let FrameCount = 0, AnimationRunning = true;
 
 // start Animation
-setTimeout(() => {
-    setInterval(() => {
-        if (AnimationRunning) {
-            FrameCount++;
-            mainClass.renderFrame();
-            if (FrameCount % BubbleIntesity == 0) {
-                mainClass.addBubble();
-            }
+setInterval(() => {
+    if (AnimationRunning) {
+        FrameCount++;
+        mainClass.renderFrame();
+        if (FrameCount % BubbleIntesity == 0) {
+            mainClass.addBubble();
         }
-    }, 1000 / FPS);
-}, 100);
+    }
+}, 1000 / FPS);
 
 BtnPlayPause.addEventListener('click', () => {
     if (AnimationRunning) {

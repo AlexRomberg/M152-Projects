@@ -88,22 +88,20 @@ var CBubble = /** @class */ (function () {
     return CBubble;
 }());
 // fix params
-var ImageScale = 1, FPS = 50, BubbleIntesity = 2;
+var ImageScale = 1, FPS = 50, BubbleIntesity = 2; /* BubbleIntesity ist ein Wert [0-99] für die Anzahl Frames pro Blase. */
 var mainClass = new CMain(ImageScale, FPS);
 var BtnPlayPause = document.getElementById('BtnPlayPause');
-var FrameCount = 0, AnimationRunning = true; /* BubbleIntesity ist ein Wert [0-99] für die Anzahl Frames pro Blase. */
+var FrameCount = 0, AnimationRunning = true;
 // start Animation
-setTimeout(function () {
-    setInterval(function () {
-        if (AnimationRunning) {
-            FrameCount++;
-            mainClass.renderFrame();
-            if (FrameCount % BubbleIntesity == 0) {
-                mainClass.addBubble();
-            }
+setInterval(function () {
+    if (AnimationRunning) {
+        FrameCount++;
+        mainClass.renderFrame();
+        if (FrameCount % BubbleIntesity == 0) {
+            mainClass.addBubble();
         }
-    }, 1000 / FPS);
-}, 100);
+    }
+}, 1000 / FPS);
 BtnPlayPause.addEventListener('click', function () {
     if (AnimationRunning) {
         BtnPlayPause.innerText = 'Start';
