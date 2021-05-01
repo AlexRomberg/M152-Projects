@@ -19,6 +19,9 @@ class CMain {
         this.Canvas = document.getElementById('canv') as HTMLCanvasElement;
         this.CTX = this.Canvas.getContext('2d');
 
+        this.Glass.onload = () => {
+            this.calculateParams();
+        }
         this.Glass.src = 'Bier.png';
         this.Foam.src = 'Schaum.png';
 
@@ -129,7 +132,6 @@ let FrameCount = 0, AnimationRunning = true; /* BubbleIntesity ist ein Wert [0-9
 
 // start Animation
 setTimeout(() => {
-    mainClass.calculateParams();
     setInterval(() => {
         if (AnimationRunning) {
             FrameCount++;
@@ -141,7 +143,7 @@ setTimeout(() => {
     }, 1000 / FPS);
 }, 100);
 
-BtnPlayPause.addEventListener('click', ()=>{
+BtnPlayPause.addEventListener('click', () => {
     if (AnimationRunning) {
         BtnPlayPause.innerText = 'Start';
     } else {

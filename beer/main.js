@@ -1,5 +1,6 @@
 var CMain = /** @class */ (function () {
     function CMain(imageScale, fps) {
+        var _this = this;
         // elements
         this.Canvas = null;
         this.Glass = new Image();
@@ -7,6 +8,9 @@ var CMain = /** @class */ (function () {
         this.BubbleList = [];
         this.Canvas = document.getElementById('canv');
         this.CTX = this.Canvas.getContext('2d');
+        this.Glass.onload = function () {
+            _this.calculateParams();
+        };
         this.Glass.src = 'Bier.png';
         this.Foam.src = 'Schaum.png';
         this.ImageScale = imageScale;
@@ -90,7 +94,6 @@ var BtnPlayPause = document.getElementById('BtnPlayPause');
 var FrameCount = 0, AnimationRunning = true; /* BubbleIntesity ist ein Wert [0-99] für die Anzahl Frames pro Blase. */
 // start Animation
 setTimeout(function () {
-    mainClass.calculateParams();
     setInterval(function () {
         if (AnimationRunning) {
             FrameCount++;
