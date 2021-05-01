@@ -3,10 +3,13 @@ var Canvas = document.getElementById('canvas');
 var CanvContext = Canvas.getContext('2d');
 var FramesPerSecond = 50;
 var MouseYPos = 0;
+var EggCounter = 0;
 var CGameboard = /** @class */ (function () {
     function CGameboard(canvasContext, imageScale) {
         if (imageScale === void 0) { imageScale = 1; }
         this.Floor = new Image();
+        this.WinAnimationPlaying = false;
+        this.Tries = 0;
         this.CTX = canvasContext;
         this.ImageScale = imageScale;
         this.Floor.src = 'img/floor.png';
@@ -25,14 +28,30 @@ var CGameboard = /** @class */ (function () {
     CGameboard.prototype.renderFrame = function () {
         this.renderFloor();
         this.Hole.renderBack();
-        var rabbitEvent = this.Rabbit.render();
+        var rabbitEvent = this.Rabbit.render(!this.WinAnimationPlaying);
         this.Hole.renderFront();
         if (rabbitEvent !== null) {
-            // console.log(rabbitEvent);
             if (rabbitEvent.event == "stoped") {
-                this.Rabbit.attach();
+                this.handleLoss();
+            }
+            else {
+                if (this.Hole.validateHit(rabbitEvent.position)) {
+                    this.handleWin();
+                }
             }
         }
+    };
+    CGameboard.prototype.handleLoss = function () {
+        this.Rabbit.attach();
+        if (this.Tries >= 3) {
+            this.placeHole();
+        }
+    };
+    CGameboard.prototype.handleWin = function () {
+        EggCounter++;
+        document.getElementById('eggCounter').innerText = EggCounter.toString();
+        this.WinAnimationPlaying = true;
+        this.Tries = 0;
     };
     CGameboard.prototype.renderFloor = function () {
         for (var imgIndex = 0; imgIndex < Math.ceil(this.CanvasWidth / (this.Floor.width * this.ImageScale - 2)); imgIndex++) {
@@ -46,6 +65,7 @@ var CGameboard = /** @class */ (function () {
     };
     CGameboard.prototype.releaseRabbit = function () {
         this.Rabbit.detach();
+        this.Tries++;
     };
     CGameboard.prototype.updateRabbitPosition = function (position) {
         if (this.Rabbit.IsAttachedToMouse) {
@@ -78,9 +98,9 @@ var CRabbit = /** @class */ (function () {
         this.RabbitImg.src = 'img/hase.png';
         this.FloorY = this.CTX.canvas.clientHeight - 125 * imageScale;
     }
-    CRabbit.prototype.render = function () {
+    CRabbit.prototype.render = function (calculateMovement) {
         this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
-        if (!this.IsAttachedToMouse) {
+        if (!this.IsAttachedToMouse && calculateMovement) {
             return this.runCalculation(FramesPerSecond);
         }
         return null;
@@ -97,9 +117,8 @@ var CRabbit = /** @class */ (function () {
             this.VelocityY *= -1;
             this.VelocityY *= 0.9;
             this.VelocityX *= 0.9;
-            console.table({ velX: this.VelocityX, velY: this.VelocityY });
-            if (this.VelocityX > 0.5 && this.VelocityY < -0.6) {
-                return { event: "hitGround", position: this.X };
+            if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X < this.CTX.canvas.width) {
+                return { event: "hitGround", position: this.X + this.RabbitWeight / 2 };
             }
             else {
                 return { event: "stoped" };
@@ -129,7 +148,7 @@ var CRabbit = /** @class */ (function () {
         this.RabbitHeight = this.RabbitImg.height * scale * this.RabbitScale;
         this.RabbitWidth = this.RabbitImg.width * scale * this.RabbitScale;
         this.FloorY = this.CTX.canvas.clientHeight - 125 * scale;
-        this.render();
+        this.render(true);
     };
     return CRabbit;
 }());
@@ -152,7 +171,24 @@ var CHole = /** @class */ (function () {
     CHole.prototype.renderFront = function () {
         this.CTX.drawImage(this.holeFront, this.X, this.CTX.canvas.height - this.holeFront.height * this.ImageScale, this.holeFront.width * this.ImageScale, this.holeFront.height * this.ImageScale);
     };
+    CHole.prototype.validateHit = function (position) {
+        var tolerance = this.holeBack.width * this.ImageScale / 2;
+        var isHit = (position > this.X - tolerance && position < this.X + this.holeBack.width * this.ImageScale + tolerance);
+        return isHit;
+    };
     return CHole;
+}());
+var CEgg = /** @class */ (function () {
+    function CEgg(ctx) {
+        this.Egg = new Image();
+        this.IsAnimationRunning = false;
+        this.Egg.src = 'img/Ei.svg';
+    }
+    CEgg.prototype.startAnimation = function () {
+    };
+    CEgg.prototype.render = function () {
+    };
+    return CEgg;
 }());
 var Gameboard = new CGameboard(CanvContext, calculateScreensize());
 Gameboard.updateCanvasParams(Body);

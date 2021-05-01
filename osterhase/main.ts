@@ -3,12 +3,14 @@ const Canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const CanvContext = Canvas.getContext('2d');
 const FramesPerSecond = 50;
 let MouseYPos = 0;
-
+let EggCounter = 0;
 
 class CGameboard {
     private CTX: CanvasRenderingContext2D;
     private Floor: HTMLImageElement = new Image();
     private ImageScale: number;
+    private WinAnimationPlaying: boolean = false;
+    private Tries: number = 0;
     public CanvasWidth: number;
     public CanvasHeight: number;
     public Rabbit: CRabbit;
@@ -36,14 +38,33 @@ class CGameboard {
     public renderFrame() {
         this.renderFloor();
         this.Hole.renderBack();
-        let rabbitEvent = this.Rabbit.render();
+        let rabbitEvent = this.Rabbit.render(!this.WinAnimationPlaying);
         this.Hole.renderFront();
         if (rabbitEvent !== null) {
-            // console.log(rabbitEvent);
             if (rabbitEvent.event == "stoped") {
-                this.Rabbit.attach();
+                this.handleLoss();
+            } else {
+                if (this.Hole.validateHit(rabbitEvent.position)) {
+                    this.handleWin();
+                }
             }
         }
+    }
+
+    private handleLoss() {
+        this.Rabbit.attach();
+
+        if (this.Tries >= 3) {
+            this.placeHole();
+        }
+    }
+
+    private handleWin() {
+        EggCounter++;
+        document.getElementById('eggCounter').innerText = EggCounter.toString();
+        this.WinAnimationPlaying = true;
+        this.Tries = 0;
+
     }
 
     private renderFloor() {
@@ -60,6 +81,7 @@ class CGameboard {
 
     public releaseRabbit() {
         this.Rabbit.detach();
+        this.Tries++;
     }
 
     public updateRabbitPosition(position: number) {
@@ -105,10 +127,10 @@ class CRabbit {
         this.FloorY = this.CTX.canvas.clientHeight - 125 * imageScale;
     }
 
-    public render(): null | { event: "stoped" | "hitGround"; position?: number } {
+    public render(calculateMovement: boolean): null | { event: "stoped" | "hitGround"; position?: number } {
         this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
 
-        if (!this.IsAttachedToMouse) {
+        if (!this.IsAttachedToMouse && calculateMovement) {
             return this.runCalculation(FramesPerSecond);
         }
         return null;
@@ -127,9 +149,8 @@ class CRabbit {
             this.VelocityY *= -1;
             this.VelocityY *= 0.9;
             this.VelocityX *= 0.9;
-            console.table({ velX: this.VelocityX, velY: this.VelocityY });
-            if (this.VelocityX > 0.5 && this.VelocityY < -0.6) {
-                return { event: "hitGround", position: this.X };
+            if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X < this.CTX.canvas.width) {
+                return { event: "hitGround", position: this.X + this.RabbitWeight / 2 };
             } else {
                 return { event: "stoped" };
             }
@@ -162,7 +183,7 @@ class CRabbit {
         this.RabbitHeight = this.RabbitImg.height * scale * this.RabbitScale;
         this.RabbitWidth = this.RabbitImg.width * scale * this.RabbitScale;
         this.FloorY = this.CTX.canvas.clientHeight - 125 * scale;
-        this.render();
+        this.render(true);
     }
 }
 
@@ -190,6 +211,12 @@ class CHole {
 
     public renderFront() {
         this.CTX.drawImage(this.holeFront, this.X, this.CTX.canvas.height - this.holeFront.height * this.ImageScale, this.holeFront.width * this.ImageScale, this.holeFront.height * this.ImageScale);
+    }
+
+    public validateHit(position): boolean {
+        const tolerance = this.holeBack.width * this.ImageScale / 2;
+        const isHit = (position > this.X - tolerance && position < this.X + this.holeBack.width * this.ImageScale + tolerance);
+        return isHit;
     }
 }
 
