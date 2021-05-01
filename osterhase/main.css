@@ -1,0 +1,45 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+canvas {
+    background-color: cornflowerblue;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#eggInfo {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+}
+
+#eggInfo img {
+    height: 100px;
+    width: 100px;
+    animation: wiggle 2s infinite alternate ease-in-out;
+    transform-origin: 50px 60px;
+}
+
+#eggInfo p {
+    font-size: 2rem;
+}
+
+@keyframes wiggle {
+    from {
+        transform: rotate(-10deg);
+    }
+    to {
+        transform: rotate(10deg);
+    }
+}
