@@ -98,8 +98,8 @@ class CGameboard {
         return position;
     }
 
-    public releaseRabbit() {
-        this.Rabbit.detach();
+    public releaseRabbit(clickPositionX: number) {
+        this.Rabbit.detach((clickPositionX + 100) / this.CTX.canvas.width); // +100 to prevent speed of 0
         this.Tries++;
     }
 
@@ -111,6 +111,7 @@ class CGameboard {
 
     public updateImgageSize(scale: number) {
         this.Rabbit.updateImgageSize(scale);
+        this.Hole.updateImgageSize(scale);
         this.ImageScale = scale;
         this.renderFloor();
     }
@@ -160,8 +161,8 @@ class CRabbit {
     private runCalculation(fps: number): null | { event: "stoped" | "hitGround"; position?: number } {
         const deltaTime = 1 / fps;
         this.VelocityY += this.RabbitWeight * 9.81 * deltaTime;
-        this.Y += this.VelocityY * deltaTime * this.PixelToMeterFactor;
-        this.X += this.VelocityX * deltaTime * this.PixelToMeterFactor;
+        this.Y += this.VelocityY * deltaTime * this.PixelToMeterFactor * this.ImageScale;
+        this.X += this.VelocityX * deltaTime * this.PixelToMeterFactor * this.ImageScale;
         return this.checkHitTheGround();
     }
 
@@ -180,9 +181,9 @@ class CRabbit {
         return null;
     }
 
-    public detach() {
+    public detach(speed: number) {
         this.IsAttachedToMouse = false;
-        this.VelocityX = 5;
+        this.VelocityX = 10 * speed;
         this.VelocityY = 0;
     }
 
@@ -225,6 +226,14 @@ class CHole {
 
     public setHolePosition(x: number) {
         this.X = x;
+    }
+
+    public updateImgageSize(scale: number) {
+        this.ImageScale = scale;
+        if (this.X + this.holeBack.width * this.ImageScale > this.CTX.canvas.width) {
+            let position = (Math.random() * (this.CTX.canvas.width - 300 * this.ImageScale)) + 200 * this.ImageScale;
+            this.setHolePosition(position);
+        }
     }
 
     public renderBack() {
@@ -300,8 +309,8 @@ window.addEventListener('mousemove', (e: MouseEvent) => {
     Gameboard.updateRabbitPosition(MouseYPos);
 });
 
-window.addEventListener('click', () => {
-    Gameboard.releaseRabbit();
+window.addEventListener('click', (e: MouseEvent) => {
+    Gameboard.releaseRabbit(e.clientX);
 });
 
 // additional functions
