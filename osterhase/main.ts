@@ -150,7 +150,8 @@ class CRabbit {
     public render(calculateMovement: boolean): null | { event: "stoped" | "hitGround"; position?: number } {
         let event = null;
         if (!this.IsAttachedToMouse && calculateMovement) {
-            event = this.runCalculation(FramesPerSecond);
+            this.runCalculation(FramesPerSecond);
+            event = this.checkHitTheGround();
         }
 
         this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
@@ -158,12 +159,11 @@ class CRabbit {
         return event;
     }
 
-    private runCalculation(fps: number): null | { event: "stoped" | "hitGround"; position?: number } {
+    private runCalculation(fps: number) {
         const deltaTime = 1 / fps;
         this.VelocityY += this.RabbitWeight * 9.81 * deltaTime;
         this.Y += this.VelocityY * deltaTime * this.PixelToMeterFactor * this.ImageScale;
         this.X += this.VelocityX * deltaTime * this.PixelToMeterFactor * this.ImageScale;
-        return this.checkHitTheGround();
     }
 
     private checkHitTheGround(): null | { event: "stoped" | "hitGround"; position?: number } {
