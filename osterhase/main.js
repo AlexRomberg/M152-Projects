@@ -74,7 +74,7 @@ var CGameboard = /** @class */ (function () {
         }
     };
     CGameboard.prototype.placeHole = function () {
-        var position = (Math.random() * (this.CTX.canvas.width - 300 * this.ImageScale)) + 200 * this.ImageScale;
+        var position = (Math.random() * (this.CTX.canvas.width - 200) / 2) + (this.CTX.canvas.width / 2);
         this.Hole.setHolePosition(position);
         return position;
     };
@@ -136,7 +136,7 @@ var CRabbit = /** @class */ (function () {
             this.VelocityX *= 0.9;
             if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X < this.CTX.canvas.width) {
                 this.Y = this.FloorY - this.RabbitHeight + 15; // prevent rabbit being drawn in de ground
-                return { event: "hitGround", position: this.X + this.RabbitWeight / 2 };
+                return { event: "hitGround", position: this.X + this.RabbitWidth / 2 };
             }
             else {
                 return { event: "stoped" };
@@ -186,7 +186,7 @@ var CHole = /** @class */ (function () {
     CHole.prototype.updateImgageSize = function (scale) {
         this.ImageScale = scale;
         if (this.X + this.holeBack.width * this.ImageScale > this.CTX.canvas.width) {
-            var position = (Math.random() * (this.CTX.canvas.width - 300 * this.ImageScale)) + 200 * this.ImageScale;
+            var position = (Math.random() * (this.CTX.canvas.width - 200) / 2) + (this.CTX.canvas.width / 2);
             this.setHolePosition(position);
         }
     };
@@ -197,7 +197,7 @@ var CHole = /** @class */ (function () {
         this.CTX.drawImage(this.holeFront, this.X, this.CTX.canvas.height - this.holeFront.height * this.ImageScale, this.holeFront.width * this.ImageScale, this.holeFront.height * this.ImageScale);
     };
     CHole.prototype.validateHit = function (position) {
-        var tolerance = this.holeBack.width * this.ImageScale / 4;
+        var tolerance = -5 * this.ImageScale;
         var isHit = (position > this.X - tolerance && position < this.X + this.holeBack.width * this.ImageScale + tolerance);
         return isHit;
     };

@@ -93,7 +93,7 @@ class CGameboard {
     }
 
     public placeHole(): number {
-        let position = (Math.random() * (this.CTX.canvas.width - 300 * this.ImageScale)) + 200 * this.ImageScale;
+        let position = (Math.random() * (this.CTX.canvas.width - 200) / 2) + (this.CTX.canvas.width / 2);
         this.Hole.setHolePosition(position);
         return position;
     }
@@ -173,7 +173,7 @@ class CRabbit {
             this.VelocityX *= 0.9;
             if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X < this.CTX.canvas.width) {
                 this.Y = this.FloorY - this.RabbitHeight + 15; // prevent rabbit being drawn in de ground
-                return { event: "hitGround", position: this.X + this.RabbitWeight / 2 };
+                return { event: "hitGround", position: this.X + this.RabbitWidth / 2 };
             } else {
                 return { event: "stoped" };
             }
@@ -231,7 +231,7 @@ class CHole {
     public updateImgageSize(scale: number) {
         this.ImageScale = scale;
         if (this.X + this.holeBack.width * this.ImageScale > this.CTX.canvas.width) {
-            let position = (Math.random() * (this.CTX.canvas.width - 300 * this.ImageScale)) + 200 * this.ImageScale;
+            let position = (Math.random() * (this.CTX.canvas.width - 200) / 2) + (this.CTX.canvas.width / 2);
             this.setHolePosition(position);
         }
     }
@@ -245,7 +245,7 @@ class CHole {
     }
 
     public validateHit(position): boolean {
-        const tolerance = this.holeBack.width * this.ImageScale / 4;
+        const tolerance = -5 * this.ImageScale;
         const isHit = (position > this.X - tolerance && position < this.X + this.holeBack.width * this.ImageScale + tolerance);
         return isHit;
     }
