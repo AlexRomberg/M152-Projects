@@ -85,7 +85,7 @@ var CGameboard = /** @class */ (function () {
     };
     CGameboard.prototype.renderFloor = function () {
         for (var imgIndex = 0; imgIndex < Math.ceil(this.CanvasWidth / (this.Floor.width * this.ImageScale - 2)); imgIndex++) {
-            this.CTX.drawImage(this.Floor, this.Floor.width * this.ImageScale * imgIndex - 2, this.CanvasHeight - this.Floor.height * this.ImageScale, this.Floor.width * this.ImageScale, this.Floor.height * this.ImageScale);
+            this.CTX.drawImage(this.Floor, this.Floor.width * this.ImageScale * imgIndex - 2, this.CanvasHeight - this.Floor.height * this.ImageScale, this.Floor.width * this.ImageScale + 2, this.Floor.height * this.ImageScale);
         }
     };
     CGameboard.prototype.placeHole = function () {
