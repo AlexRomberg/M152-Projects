@@ -50,13 +50,15 @@ class CGameboard {
     }
 
     private stopWinAnimation() {
-        if (this.WinAnimationPlaying && !this.Egg.IsAnimationRunning) {
+        if (this.WinAnimationPlaying && !this.Rabbit.AnimationRunning) {
             this.Rabbit.attach();
             EggCounter++;
             document.getElementById('eggCounter').innerText = EggCounter.toString();
             this.WinAnimationPlaying = false;
             this.placeHole();
-        }
+        } /* if (this.WinAnimationPlaying && !this.Rabbit.AnimationRunning) {
+            this.Egg.startAnimation();
+        } */
     }
 
     private evaluateEvents(rabbitEvent: { event: "stoped" | "hitGround"; position?: number; }) {
@@ -83,7 +85,7 @@ class CGameboard {
     private handleWin() {
         this.Tries = 0;
         this.WinAnimationPlaying = true;
-        this.Egg.startAnimation();
+        this.Rabbit.AnimationRunning = true;
     }
 
     private renderFloor() {
@@ -131,8 +133,10 @@ class CRabbit {
     private VelocityY: number;
     private RabbitWeight: number = 7;
     private PixelToMeterFactor: number = 100
+    private hideAnimationProgress: number = 0;
+    private RabbitHiddingTime = 1;
 
-    public AnimationRunning
+    public AnimationRunning: boolean = false;
     public IsAttachedToMouse: boolean = true;
 
 
@@ -154,7 +158,19 @@ class CRabbit {
             event = this.checkHitTheGround();
         }
 
-        this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
+        if (this.AnimationRunning) {
+            let hideFrames = this.RabbitHiddingTime * FramesPerSecond;
+            this.CTX.drawImage(this.RabbitImg, 0, 0, this.RabbitImg.width, this.RabbitImg.height / hideFrames * (hideFrames - this.hideAnimationProgress), this.X, this.Y + this.RabbitHeight / hideFrames * this.hideAnimationProgress, this.RabbitWidth, this.RabbitHeight / hideFrames * (hideFrames - this.hideAnimationProgress));
+
+            if (this.hideAnimationProgress > hideFrames) {
+                this.AnimationRunning = false;
+                this.hideAnimationProgress = 0;
+            } else {
+                this.hideAnimationProgress++;
+            }
+        } else {
+            this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
+        }
 
         return event;
     }
@@ -245,7 +261,7 @@ class CHole {
     }
 
     public validateHit(position): boolean {
-        const tolerance = -5 * this.ImageScale;
+        const tolerance = -20 * this.ImageScale;
         const isHit = (position > this.X - tolerance && position < this.X + this.holeBack.width * this.ImageScale + tolerance);
         return isHit;
     }
