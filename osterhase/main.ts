@@ -16,6 +16,7 @@ class CGameboard {
     public Rabbit: CRabbit;
     public Hole: CHole;
     public Egg: CEgg;
+    public Audio: CAudio;
 
     constructor(canvasContext: CanvasRenderingContext2D, imageScale: number = 1) {
         this.CTX = canvasContext;
@@ -24,6 +25,7 @@ class CGameboard {
         this.Rabbit = new CRabbit(canvasContext, imageScale);
         this.Hole = new CHole(canvasContext, imageScale);
         this.Egg = new CEgg(canvasContext);
+        this.Audio = new CAudio();
     }
 
     public updateCanvasParams(body: HTMLElement) {
@@ -68,6 +70,9 @@ class CGameboard {
             } else {
                 if (this.Hole.validateHit(rabbitEvent.position)) {
                     this.handleWin();
+                } else {
+                    this.Audio.bounceSound.currentTime = 0;
+                    this.Audio.bounceSound.play();
                 }
             }
         }
@@ -86,6 +91,7 @@ class CGameboard {
         this.Tries = 0;
         this.WinAnimationPlaying = true;
         this.Rabbit.AnimationRunning = true;
+        this.Audio.winSound.play();
     }
 
     private renderFloor() {
@@ -300,6 +306,16 @@ class CEgg {
                 this.CTX.drawImage(this.Egg, this.X, this.Y, 300, 300);
             }
         }
+    }
+}
+
+class CAudio {
+    public winSound = new Audio();
+    public bounceSound = new Audio();
+
+    constructor() {
+        this.winSound.src = 'res/win.mp3';
+        this.bounceSound.src = 'res/bounce.mp3';
     }
 }
 
