@@ -9,6 +9,7 @@ var CGameboard = /** @class */ (function () {
         if (imageScale === void 0) { imageScale = 1; }
         this.Floor = new Image();
         this.WinAnimationPlaying = false;
+        this.RabbitAnimationPlaying = false;
         this.Tries = 0;
         this.CTX = canvasContext;
         this.ImageScale = imageScale;
@@ -30,22 +31,27 @@ var CGameboard = /** @class */ (function () {
     CGameboard.prototype.renderFrame = function () {
         this.renderFloor();
         this.Hole.renderBack();
-        var rabbitEvent = this.Rabbit.render(!this.WinAnimationPlaying);
+        var rabbitEvent = this.Rabbit.render(!(this.WinAnimationPlaying || this.RabbitAnimationPlaying));
         this.Hole.renderFront();
         this.Egg.render();
         this.evaluateEvents(rabbitEvent);
         this.stopWinAnimation();
     };
     CGameboard.prototype.stopWinAnimation = function () {
-        if (this.WinAnimationPlaying && !this.Rabbit.AnimationRunning) {
+        if (this.RabbitAnimationPlaying) {
+            if (!this.Rabbit.AnimationRunning) {
+                this.Egg.startAnimation();
+                this.WinAnimationPlaying = true;
+                this.RabbitAnimationPlaying = false;
+            }
+        }
+        else if (this.WinAnimationPlaying && !this.Egg.IsAnimationRunning) {
             this.Rabbit.attach();
             EggCounter++;
             document.getElementById('eggCounter').innerText = EggCounter.toString();
             this.WinAnimationPlaying = false;
             this.placeHole();
-        } /* if (this.WinAnimationPlaying && !this.Rabbit.AnimationRunning) {
-            this.Egg.startAnimation();
-        } */
+        }
     };
     CGameboard.prototype.evaluateEvents = function (rabbitEvent) {
         if (rabbitEvent !== null) {
@@ -54,6 +60,7 @@ var CGameboard = /** @class */ (function () {
             }
             else {
                 if (this.Hole.validateHit(rabbitEvent.position)) {
+                    this.Rabbit.X = this.Hole.X + 10 * this.ImageScale;
                     this.handleWin();
                 }
                 else {
@@ -72,7 +79,7 @@ var CGameboard = /** @class */ (function () {
     };
     CGameboard.prototype.handleWin = function () {
         this.Tries = 0;
-        this.WinAnimationPlaying = true;
+        this.RabbitAnimationPlaying = true;
         this.Rabbit.AnimationRunning = true;
         this.Audio.winSound.play();
     };
@@ -107,15 +114,16 @@ var CRabbit = /** @class */ (function () {
     function CRabbit(ctx, imageScale) {
         var _this = this;
         this.RabbitImg = new Image();
-        this.X = 10;
         this.Y = 10;
         this.RabbitScale = 0.3;
         this.RabbitWeight = 7;
         this.PixelToMeterFactor = 100;
         this.hideAnimationProgress = 0;
         this.RabbitHiddingTime = 1;
+        this.IsVisible = true;
         this.AnimationRunning = false;
         this.IsAttachedToMouse = true;
+        this.X = 10;
         this.CTX = ctx;
         this.ImageScale = imageScale;
         this.RabbitImg.onload = function () {
@@ -137,12 +145,13 @@ var CRabbit = /** @class */ (function () {
             if (this.hideAnimationProgress > hideFrames) {
                 this.AnimationRunning = false;
                 this.hideAnimationProgress = 0;
+                this.IsVisible = false;
             }
             else {
                 this.hideAnimationProgress++;
             }
         }
-        else {
+        else if (this.IsVisible) {
             this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
         }
         return event;
@@ -177,6 +186,7 @@ var CRabbit = /** @class */ (function () {
         this.IsAttachedToMouse = true;
         this.X = 10;
         this.Y = MouseYPos;
+        this.IsVisible = true;
     };
     CRabbit.prototype.updateY = function (mousePosition) {
         var newYPos = mousePosition - (this.RabbitHeight / 2);

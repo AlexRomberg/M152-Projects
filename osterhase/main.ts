@@ -10,6 +10,7 @@ class CGameboard {
     private Floor: HTMLImageElement = new Image();
     private ImageScale: number;
     private WinAnimationPlaying: boolean = false;
+    private RabbitAnimationPlaying: boolean = false;
     private Tries: number = 0;
     public CanvasWidth: number;
     public CanvasHeight: number;
@@ -42,7 +43,7 @@ class CGameboard {
     public renderFrame() {
         this.renderFloor();
         this.Hole.renderBack();
-        let rabbitEvent = this.Rabbit.render(!this.WinAnimationPlaying);
+        let rabbitEvent = this.Rabbit.render(!(this.WinAnimationPlaying || this.RabbitAnimationPlaying));
         this.Hole.renderFront();
         this.Egg.render();
 
@@ -52,15 +53,19 @@ class CGameboard {
     }
 
     private stopWinAnimation() {
-        if (this.WinAnimationPlaying && !this.Rabbit.AnimationRunning) {
+        if (this.RabbitAnimationPlaying) {
+            if (!this.Rabbit.AnimationRunning) {
+                this.Egg.startAnimation();
+                this.WinAnimationPlaying = true;
+                this.RabbitAnimationPlaying = false;
+            }
+        } else if (this.WinAnimationPlaying && !this.Egg.IsAnimationRunning) {
             this.Rabbit.attach();
             EggCounter++;
             document.getElementById('eggCounter').innerText = EggCounter.toString();
             this.WinAnimationPlaying = false;
             this.placeHole();
-        } /* if (this.WinAnimationPlaying && !this.Rabbit.AnimationRunning) {
-            this.Egg.startAnimation();
-        } */
+        }
     }
 
     private evaluateEvents(rabbitEvent: { event: "stoped" | "hitGround"; position?: number; }) {
@@ -69,6 +74,7 @@ class CGameboard {
                 this.handleLoss();
             } else {
                 if (this.Hole.validateHit(rabbitEvent.position)) {
+                    this.Rabbit.X = this.Hole.X + 10 * this.ImageScale;
                     this.handleWin();
                 } else {
                     this.Audio.bounceSound.currentTime = 0;
@@ -89,7 +95,7 @@ class CGameboard {
 
     private handleWin() {
         this.Tries = 0;
-        this.WinAnimationPlaying = true;
+        this.RabbitAnimationPlaying = true;
         this.Rabbit.AnimationRunning = true;
         this.Audio.winSound.play();
     }
@@ -129,7 +135,6 @@ class CRabbit {
     private CTX: CanvasRenderingContext2D;
     private RabbitImg: HTMLImageElement = new Image();
     private ImageScale: number;
-    private X: number = 10;
     private Y: number = 10;
     private FloorY: number;
     private RabbitHeight: number;
@@ -141,9 +146,11 @@ class CRabbit {
     private PixelToMeterFactor: number = 100
     private hideAnimationProgress: number = 0;
     private RabbitHiddingTime = 1;
+    private IsVisible: boolean = true;
 
     public AnimationRunning: boolean = false;
     public IsAttachedToMouse: boolean = true;
+    public X: number = 10;
 
 
     constructor(ctx: CanvasRenderingContext2D, imageScale: number) {
@@ -171,10 +178,11 @@ class CRabbit {
             if (this.hideAnimationProgress > hideFrames) {
                 this.AnimationRunning = false;
                 this.hideAnimationProgress = 0;
+                this.IsVisible = false;
             } else {
                 this.hideAnimationProgress++;
             }
-        } else {
+        } else if (this.IsVisible) {
             this.CTX.drawImage(this.RabbitImg, this.X, this.Y, this.RabbitWidth, this.RabbitHeight);
         }
 
@@ -213,6 +221,7 @@ class CRabbit {
         this.IsAttachedToMouse = true;
         this.X = 10;
         this.Y = MouseYPos;
+        this.IsVisible = true;
     }
 
     public updateY(mousePosition: number) {
@@ -237,7 +246,7 @@ class CHole {
     private ImageScale: number;
     private holeBack: HTMLImageElement = new Image();
     private holeFront: HTMLImageElement = new Image();
-    private X = 0;
+    public X = 0;
 
     constructor(ctx: CanvasRenderingContext2D, imageScale: number) {
         this.CTX = ctx;
