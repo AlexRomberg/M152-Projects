@@ -77,7 +77,7 @@ class CGameboard {
                     this.Rabbit.X = this.Hole.X + 10 * this.ImageScale;
                     this.handleWin();
                 } else {
-                    this.Audio.bounceSound.currentTime = 0;
+                    this.Audio.bounceSound.currentTime = 1;
                     this.Audio.bounceSound.play();
                 }
             }
@@ -201,8 +201,8 @@ class CRabbit {
             this.VelocityY *= -1;
             this.VelocityY *= 0.9;
             this.VelocityX *= 0.9;
-            if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X < this.CTX.canvas.width) {
-                this.Y = this.FloorY - this.RabbitHeight + 15; // prevent rabbit being drawn in de ground
+            if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X - this.RabbitWidth < this.CTX.canvas.width) {
+                this.Y = this.FloorY - this.RabbitHeight + 15; // prevent rabbit being drawn in the ground
                 return { event: "hitGround", position: this.X + this.RabbitWidth / 2 };
             } else {
                 return { event: "stoped" };
