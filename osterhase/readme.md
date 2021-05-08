@@ -1,7 +1,7 @@
 # S elbstständigkeitserklärung
 Hiermit bestätige ich, den Sourcecode dieses Projekts eigenständig entwickelt zu haben, mit Ausnahme der nachfolgend aufgelisteten Quellen.
 
-Alexander Romberg, 01.05.2021
+Alexander Romberg, 08.05.2021
 
 ## Quellen
 - Eventlistenertheorie [W3Schools.com/developer.mozilla.org]
@@ -9,7 +9,7 @@ Alexander Romberg, 01.05.2021
 - Probleme mit CSS/JS Verzerrungen [Herr Keller/StackOverflow.com]
 - Gewicht Hase [wikipedia-Hase]
 - Grafik: Hase [moodle]
-- Audio-dateien: [moodle/privates_laufwerk]
+- Audio-dateien: [moodle/privates Laufwerk]
 
 ## Anmerkungen
 - Das main.js wurde aus Typescript compiliert. Bei Fragen zum Source-Code ist das main.ts zu kon­sul­tie­ren.
