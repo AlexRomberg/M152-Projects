@@ -9,6 +9,7 @@ Alexander Romberg, 01.05.2021
 - Probleme mit CSS/JS Verzerrungen [Herr Keller/StackOverflow.com]
 - Gewicht Hase [wikipedia-Hase]
 - Grafik: Hase [moodle]
+- Audio-dateien: [moodle/privates_laufwerk]
 
 ## Anmerkungen
 - Das main.js wurde aus Typescript compiliert. Bei Fragen zum Source-Code ist das main.ts zu kon­sul­tie­ren.
