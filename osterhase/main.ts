@@ -12,6 +12,7 @@ class CGameboard {
     private WinAnimationPlaying: boolean = false;
     private RabbitAnimationPlaying: boolean = false;
     private Tries: number = 0;
+    private isStopped: number = 0;
     public CanvasWidth: number;
     public CanvasHeight: number;
     public Rabbit: CRabbit;
@@ -43,11 +44,18 @@ class CGameboard {
     public renderFrame() {
         this.renderFloor();
         this.Hole.renderBack();
-        let rabbitEvent = this.Rabbit.render(!(this.WinAnimationPlaying || this.RabbitAnimationPlaying));
+        let rabbitEvent = this.Rabbit.render(!(this.WinAnimationPlaying || this.RabbitAnimationPlaying || this.isStopped > 0));
         this.Hole.renderFront();
         this.Egg.render();
 
-        this.evaluateEvents(rabbitEvent);
+        if (this.isStopped > 1) {
+            this.isStopped--;
+        } else if (this.isStopped === 1) {
+            this.Rabbit.attach();
+            this.isStopped = 0;
+        } else {
+            this.evaluateEvents(rabbitEvent);
+        }
 
         this.stopWinAnimation();
     }
@@ -77,15 +85,15 @@ class CGameboard {
                     this.Rabbit.X = this.Hole.X + 10 * this.ImageScale;
                     this.handleWin();
                 } else {
-                    this.Audio.bounceSound.currentTime = 1;
-                    this.Audio.bounceSound.play();
+                    this.Audio.playBounceSound();
                 }
             }
         }
     }
 
     private handleLoss() {
-        this.Rabbit.attach();
+        this.Audio.playLoseSound();
+        this.isStopped = 50;
 
         if (this.Tries >= 3) {
             this.placeHole();
@@ -97,7 +105,7 @@ class CGameboard {
         this.Tries = 0;
         this.RabbitAnimationPlaying = true;
         this.Rabbit.AnimationRunning = true;
-        this.Audio.winSound.play();
+        this.Audio.playwWinSound();
     }
 
     private renderFloor() {
@@ -201,12 +209,16 @@ class CRabbit {
             this.VelocityY *= -1;
             this.VelocityY *= 0.9;
             this.VelocityX *= 0.9;
-            if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X - this.RabbitWidth < this.CTX.canvas.width) {
+            if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X + this.RabbitWidth < this.CTX.canvas.width + 10) {
                 this.Y = this.FloorY - this.RabbitHeight + 15; // prevent rabbit being drawn in the ground
                 return { event: "hitGround", position: this.X + this.RabbitWidth / 2 };
             } else {
                 return { event: "stoped" };
             }
+        } else if (this.X + this.RabbitWidth > this.CTX.canvas.width + 10) {
+            console.log();
+
+            return { event: "stoped" }
         }
         return null;
     }
@@ -321,11 +333,47 @@ class CEgg {
 class CAudio {
     public winSound = new Audio();
     public bounceSound = new Audio();
+    public loseSound = new Audio();
+    public audioOn: boolean = true;
 
     constructor() {
         this.winSound.src = 'res/win.mp3';
         this.bounceSound.src = 'res/bounce.mp3';
+        this.loseSound.src = 'res/lose.mp3';
+
+        let btn = document.getElementById('audioBtn') as HTMLButtonElement;
+        btn.addEventListener('click', ()=>{
+            if (this.audioOn) {
+                btn.innerText = "Ton einschalten";
+                this.audioOn = false;
+            } else {
+                btn.innerText = "Ton ausschalten";
+                this.audioOn = true;
+            }
+            return false;
+        });
+
     }
+
+    public playwWinSound() {
+        if (this.audioOn) {
+            this.winSound.currentTime = 0;
+            this.winSound.play();
+        }
+    }
+    public playBounceSound() {
+        if (this.audioOn) {
+            this.bounceSound.currentTime = 0;
+            this.bounceSound.play();
+        }
+    }
+    public playLoseSound() {
+        if (this.audioOn) {
+            this.loseSound.currentTime = 0;
+            this.loseSound.play();
+        }
+    }
+
 }
 
 const Gameboard = new CGameboard(CanvContext, calculateScreensize());

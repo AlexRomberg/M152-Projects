@@ -35,6 +35,16 @@ canvas {
     font-size: 2rem;
 }
 
+#audioBtn {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 5px 10px;
+    border-radius: 30px;
+    border: none;
+}
+
 @keyframes wiggle {
     from {
         transform: rotate(-10deg);

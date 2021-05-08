@@ -11,6 +11,7 @@ var CGameboard = /** @class */ (function () {
         this.WinAnimationPlaying = false;
         this.RabbitAnimationPlaying = false;
         this.Tries = 0;
+        this.isStopped = 0;
         this.CTX = canvasContext;
         this.ImageScale = imageScale;
         this.Floor.src = 'img/floor.png';
@@ -31,10 +32,19 @@ var CGameboard = /** @class */ (function () {
     CGameboard.prototype.renderFrame = function () {
         this.renderFloor();
         this.Hole.renderBack();
-        var rabbitEvent = this.Rabbit.render(!(this.WinAnimationPlaying || this.RabbitAnimationPlaying));
+        var rabbitEvent = this.Rabbit.render(!(this.WinAnimationPlaying || this.RabbitAnimationPlaying || this.isStopped > 0));
         this.Hole.renderFront();
         this.Egg.render();
-        this.evaluateEvents(rabbitEvent);
+        if (this.isStopped > 1) {
+            this.isStopped--;
+        }
+        else if (this.isStopped === 1) {
+            this.Rabbit.attach();
+            this.isStopped = 0;
+        }
+        else {
+            this.evaluateEvents(rabbitEvent);
+        }
         this.stopWinAnimation();
     };
     CGameboard.prototype.stopWinAnimation = function () {
@@ -64,14 +74,14 @@ var CGameboard = /** @class */ (function () {
                     this.handleWin();
                 }
                 else {
-                    this.Audio.bounceSound.currentTime = 1;
-                    this.Audio.bounceSound.play();
+                    this.Audio.playBounceSound();
                 }
             }
         }
     };
     CGameboard.prototype.handleLoss = function () {
-        this.Rabbit.attach();
+        this.Audio.playLoseSound();
+        this.isStopped = 50;
         if (this.Tries >= 3) {
             this.placeHole();
             this.Tries = 0;
@@ -81,7 +91,7 @@ var CGameboard = /** @class */ (function () {
         this.Tries = 0;
         this.RabbitAnimationPlaying = true;
         this.Rabbit.AnimationRunning = true;
-        this.Audio.winSound.play();
+        this.Audio.playwWinSound();
     };
     CGameboard.prototype.renderFloor = function () {
         for (var imgIndex = 0; imgIndex < Math.ceil(this.CanvasWidth / (this.Floor.width * this.ImageScale - 2)); imgIndex++) {
@@ -167,13 +177,17 @@ var CRabbit = /** @class */ (function () {
             this.VelocityY *= -1;
             this.VelocityY *= 0.9;
             this.VelocityX *= 0.9;
-            if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X - this.RabbitWidth < this.CTX.canvas.width) {
+            if (this.VelocityX > 0.5 && this.VelocityY < -0.6 && this.X + this.RabbitWidth < this.CTX.canvas.width + 10) {
                 this.Y = this.FloorY - this.RabbitHeight + 15; // prevent rabbit being drawn in the ground
                 return { event: "hitGround", position: this.X + this.RabbitWidth / 2 };
             }
             else {
                 return { event: "stoped" };
             }
+        }
+        else if (this.X + this.RabbitWidth > this.CTX.canvas.width + 10) {
+            console.log();
+            return { event: "stoped" };
         }
         return null;
     };
@@ -267,11 +281,45 @@ var CEgg = /** @class */ (function () {
 }());
 var CAudio = /** @class */ (function () {
     function CAudio() {
+        var _this = this;
         this.winSound = new Audio();
         this.bounceSound = new Audio();
+        this.loseSound = new Audio();
+        this.audioOn = true;
         this.winSound.src = 'res/win.mp3';
         this.bounceSound.src = 'res/bounce.mp3';
+        this.loseSound.src = 'res/lose.mp3';
+        var btn = document.getElementById('audioBtn');
+        btn.addEventListener('click', function () {
+            if (_this.audioOn) {
+                btn.innerText = "Ton einschalten";
+                _this.audioOn = false;
+            }
+            else {
+                btn.innerText = "Ton ausschalten";
+                _this.audioOn = true;
+            }
+            return false;
+        });
     }
+    CAudio.prototype.playwWinSound = function () {
+        if (this.audioOn) {
+            this.winSound.currentTime = 0;
+            this.winSound.play();
+        }
+    };
+    CAudio.prototype.playBounceSound = function () {
+        if (this.audioOn) {
+            this.bounceSound.currentTime = 0;
+            this.bounceSound.play();
+        }
+    };
+    CAudio.prototype.playLoseSound = function () {
+        if (this.audioOn) {
+            this.loseSound.currentTime = 0;
+            this.loseSound.play();
+        }
+    };
     return CAudio;
 }());
 var Gameboard = new CGameboard(CanvContext, calculateScreensize());
